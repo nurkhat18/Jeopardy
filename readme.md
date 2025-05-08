@@ -41,6 +41,7 @@ This documentation explains how to install, configure, and use the script, and d
 * `openai` library for API access
 * `python-dotenv` to load environment variables
 * Standard libraries: `os`, `re`, `math`, `gzip`, `json`, `hashlib`, `xml.etree.ElementTree`, `collections`, `typing`
+* Add the wiki-subset folder to the project near the .py file. it's too big to upload it here
 
 Install with:
 
