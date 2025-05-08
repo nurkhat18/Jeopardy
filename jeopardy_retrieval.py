@@ -361,3 +361,42 @@ if __name__ == "__main__":
                 break
     p1h, mrrh = hits / len(qs), mrr_sum / len(qs)
     print(f"Hybrid BM25+GPT ► P@1 {p1h:.3f}   MRR@{RERANK_TOP} {mrrh:.3f}\n")
+        # ─────────────── Hybrid BM25+GPT Evaluation ──────────────────────────
+    hits, mrr_sum = 0.0, 0.0
+    expected, predicted = [], []
+
+    for cat, instr, q, g in zip(cats, instrs, qs, ans):
+        qry = f"{cat} {q}".strip()
+
+        if instr.startswith("Alex:"):
+            prompt = f"Instruction: {instr}\nClue: {q}\nAnswer with the EXACT Wikipedia title."
+            preds = [ask_gpt(prompt).splitlines()[0].strip()]
+        else:
+            cands = idx.score(qry, RERANK_BM25)
+            preds = gpt_rerank(qry, cands, idx)
+
+        # record expected & predicted top-1
+        expected.append(g)
+        top1 = preds[0] if preds else ""
+        predicted.append(top1)
+
+        # update P@1 hit
+        if canon(top1) == canon(g):
+            hits += 1
+
+        # update MRR
+        for rank, title in enumerate(preds, 1):
+            if canon(title) == canon(g):
+                mrr_sum += 1 / rank
+                break
+
+    p1h, mrrh = hits / len(qs), mrr_sum / len(qs)
+    print(f"\nHybrid BM25+GPT ► P@1 {p1h:.3f}   MRR@{RERANK_TOP} {mrrh:.3f}\n")
+
+    # ─────────────── Print Expected vs Predicted ────────────────────────
+    print("Expected vs Predicted (Hybrid top-1):")
+    for exp, pred in zip(expected, predicted):
+        status = "✔" if canon(pred) == canon(exp) else "✘"
+        print(f"{status} Expected: {exp!r}   Predicted: {pred!r}")
+
+    print(f"\nTotal correct (P@1): {int(hits)} / {len(qs)}")
