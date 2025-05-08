@@ -47,7 +47,7 @@ Install with:
 
 ```bash
 pip install openai python-dotenv
-export OPENAI_API_KEY="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"
+export OPENAI_API_KEY="use the one I give it in the report. if I share it on github, openai shutting down my api key for making it public"
 Output
 ```
 
